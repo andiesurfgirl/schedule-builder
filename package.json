@@ -1,9 +1,9 @@
 {
   "dependencies": {
+    "@hello-pangea/dnd": "latest",
     "next": "latest",
     "react": "latest",
-    "react-dom": "latest",
-    "@hello-pangea/dnd": "latest"
+    "react-dom": "latest"
   },
   "scripts": {
     "dev": "next dev",
@@ -11,9 +11,12 @@
     "start": "next start"
   },
   "devDependencies": {
+    "@tailwindcss/forms": "latest",
+    "@types/node": "^22.10.2",
+    "@types/react": "^19.0.2",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.17",
-    "@tailwindcss/forms": "latest"
+    "typescript": "^5.7.2"
   }
 }
