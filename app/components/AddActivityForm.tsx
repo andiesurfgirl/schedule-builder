@@ -34,8 +34,9 @@ export default function AddActivityForm({ onAddActivity, initialActivity, onCanc
   const [duration, setDuration] = useState(initialActivity?.duration.toString() || '')
   const [days, setDays] = useState<string[]>(initialActivity?.days || [])
   const [time, setTime] = useState(initialActivity?.time || '')
-  const [color, setColor] = useState(initialActivity?.color || pastelColors[0])
+  const [color, setColor] = useState(initialActivity?.color || pastelColors[Math.floor(Math.random() * pastelColors.length)])
   const [imageUrl, setImageUrl] = useState(initialActivity?.coverImage || '')
+  const [showDaysError, setShowDaysError] = useState(false)
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -50,22 +51,31 @@ export default function AddActivityForm({ onAddActivity, initialActivity, onCanc
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    if (!name || !duration || !time) {
+      return // HTML5 validation will handle these
+    }
+    
+    if (days.length === 0) {
+      setShowDaysError(true)
+      return
+    }
+    
+    setShowDaysError(false)
     onAddActivity({
       name,
       duration: parseInt(duration),
       days,
       time,
       color,
-      coverImage: imageUrl
+      coverImage: imageUrl || undefined
     })
     
-    // Only clear form if not editing (no initialActivity)
     if (!initialActivity) {
       setName('')
       setDuration('')
       setDays([])
       setTime('')
-      setColor(pastelColors[0])
+      setColor(pastelColors[Math.floor(Math.random() * pastelColors.length)])
       setImageUrl('')
     }
   }
@@ -73,6 +83,7 @@ export default function AddActivityForm({ onAddActivity, initialActivity, onCanc
   const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 
   const toggleDay = (day: string) => {
+    setShowDaysError(false) // Clear error when user selects a day
     setDays(days.includes(day) 
       ? days.filter(d => d !== day)
       : [...days, day]
@@ -85,7 +96,7 @@ export default function AddActivityForm({ onAddActivity, initialActivity, onCanc
       
       <div>
         <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-          Name
+          Name *
         </label>
         <input
           id="name"
@@ -99,7 +110,7 @@ export default function AddActivityForm({ onAddActivity, initialActivity, onCanc
 
       <div>
         <label htmlFor="duration" className="block text-sm font-medium text-gray-700">
-          Duration (minutes)
+          Duration (minutes) *
         </label>
         <input
           id="duration"
@@ -112,7 +123,7 @@ export default function AddActivityForm({ onAddActivity, initialActivity, onCanc
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700">Days</label>
+        <label className="block text-sm font-medium text-gray-700">Days *</label>
         <div className="mt-1 grid grid-cols-7 gap-2">
           {daysOfWeek.map(day => (
             <button
@@ -129,11 +140,16 @@ export default function AddActivityForm({ onAddActivity, initialActivity, onCanc
             </button>
           ))}
         </div>
+        {showDaysError && (
+          <p className="mt-1 text-sm text-red-600">
+            Please select at least one day
+          </p>
+        )}
       </div>
 
       <div>
         <label htmlFor="time" className="block text-sm font-medium text-gray-700">
-          Time
+          Time *
         </label>
         <input
           id="time"
@@ -147,7 +163,7 @@ export default function AddActivityForm({ onAddActivity, initialActivity, onCanc
 
       <div>
         <label className="block text-sm font-medium text-gray-700">
-          Color
+          Color (optional)
         </label>
         <div className="grid grid-cols-5 gap-2 mt-1">
           {pastelColors.map((colorOption) => (
@@ -166,7 +182,7 @@ export default function AddActivityForm({ onAddActivity, initialActivity, onCanc
 
       <div>
         <label className="block text-sm font-medium text-gray-700">
-          Cover Image
+          Cover Image (optional)
         </label>
         <input
           type="file"
