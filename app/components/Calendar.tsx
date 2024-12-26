@@ -2,11 +2,13 @@ import { Draggable } from '@hello-pangea/dnd'
 import { Activity } from '../types'
 import { StrictModeDroppable } from './StrictModeDroppable'
 import { useState } from 'react'
+import AddActivityForm from './AddActivityForm'
 
 interface CalendarProps {
   schedule: { [key: string]: Activity[] }
   conflicts: { [key: string]: string[] }
   onActivityClick?: (activity: Activity, e: React.MouseEvent) => void
+  handleEditActivity: (updatedActivity: Activity) => void
 }
 
 interface OverlapInfo {
@@ -18,8 +20,10 @@ interface OverlapInfo {
 const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 const hours = Array.from({ length: 24 }, (_, i) => i)
 
-export default function Calendar({ schedule, conflicts, onActivityClick }: CalendarProps) {
+export default function Calendar({ schedule, conflicts, onActivityClick, handleEditActivity }: CalendarProps) {
   const [overlapInfo, setOverlapInfo] = useState<OverlapInfo | null>(null)
+  const [isEditing, setIsEditing] = useState(false)
+  const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null)
 
   const calculateOverlap = (activity: Activity, day: string) => {
     const activities = schedule[day]
@@ -57,16 +61,33 @@ export default function Calendar({ schedule, conflicts, onActivityClick }: Calen
 
   const handleActivityClick = (activity: Activity, day: string, e: React.MouseEvent) => {
     if (conflicts[day]?.includes(activity.id)) {
-      const overlap = calculateOverlap(activity, day)
+      const overlap = calculateOverlap(activity, day);
       if (overlap) {
+        const rect = e.currentTarget.getBoundingClientRect();
+        const overlappingElements = document.querySelectorAll(`[data-activity-id="${activity.id}"]`);
+        let topMostRect = rect;
+        overlappingElements.forEach((el) => {
+          const elRect = el.getBoundingClientRect();
+          if (elRect.top < topMostRect.top) {
+            topMostRect = elRect;
+          }
+        });
+        
+        const windowWidth = window.innerWidth;
+        const popupWidth = 250;
+        const willOverflowRight = (topMostRect.right + popupWidth + 2) > windowWidth;
+        
         setOverlapInfo({
           ...overlap,
-          position: { x: e.clientX, y: e.clientY }
-        })
+          position: { 
+            x: willOverflowRight ? topMostRect.left - popupWidth - 2 : topMostRect.right + 2,
+            y: topMostRect.top - 2
+          }
+        });
       }
     }
-    onActivityClick?.(activity, e)
-  }
+    onActivityClick?.(activity, e);
+  };
 
   const getActivityStyle = (activity: Activity, day: string) => {
     const startHour = parseInt(activity.time.split(':')[0])
@@ -141,6 +162,7 @@ export default function Calendar({ schedule, conflicts, onActivityClick }: Calen
                         ref={provided.innerRef}
                         {...provided.draggableProps}
                         {...provided.dragHandleProps}
+                        data-activity-id={activity.id}
                         onClick={(e) => handleActivityClick(activity, day, e)}
                         style={
                           {
@@ -162,10 +184,10 @@ export default function Calendar({ schedule, conflicts, onActivityClick }: Calen
       </div>
       {overlapInfo && (
         <div
-          className="fixed bg-white p-3 rounded-lg shadow-lg text-sm z-50"
+          className="absolute bg-white p-3 rounded-lg shadow-lg text-sm z-50"
           style={{
-            top: overlapInfo.position.y + 10,
-            left: overlapInfo.position.x + 10
+            top: overlapInfo.position.y,
+            left: overlapInfo.position.x
           }}
           onClick={() => setOverlapInfo(null)}
         >
@@ -177,6 +199,20 @@ export default function Calendar({ schedule, conflicts, onActivityClick }: Calen
             ))}
           </ul>
           <p className="text-xs text-gray-500 mt-2">(Click to close)</p>
+        </div>
+      )}
+      {isEditing && selectedActivity && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full">
+            <AddActivityForm
+              onAddActivity={(updatedActivity) => handleEditActivity({ ...updatedActivity, id: selectedActivity.id })}
+              initialActivity={selectedActivity}
+              onCancel={() => {
+                setIsEditing(false)
+                setSelectedActivity(null)
+              }}
+            />
+          </div>
         </div>
       )}
     </div>

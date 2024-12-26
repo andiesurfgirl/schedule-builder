@@ -196,6 +196,7 @@ export default function ScheduleBuilder() {
                   schedule={schedule} 
                   conflicts={conflicts}
                   onActivityClick={handleActivityClick}
+                  handleEditActivity={handleEditActivity}
                 />
               </div>
             </div>
