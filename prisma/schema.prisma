@@ -21,10 +21,10 @@ model User {
 model Schedule {
   id         String   @id @default(cuid())
   name       String
-  activities Json
-  schedule   Json
+  activities Json     // Stores the activities array
+  schedule   Json     // Stores the schedule object
   userId     String
-  user       User     @relation(fields: [userId], references: [id])
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 }

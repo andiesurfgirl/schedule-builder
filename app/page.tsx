@@ -7,6 +7,7 @@ import ActivityBank from './components/ActivityBank'
 import Calendar from './components/Calendar'
 import AddActivityForm from './components/AddActivityForm'
 import { Activity, User } from './types'
+import { Schedule } from './types/schedule'
 import CalendarExport from './components/CalendarExport'
 import ActivityMenu from './components/ActivityMenu'
 import UserProfile from './components/UserProfile'
@@ -87,19 +88,20 @@ export default function Page() {
       // Get the activity from the schedule
       const activity = schedule[sourceDay].find(a => a.id === result.draggableId)
       if (activity) {
-        // Add back to activities bank
-        setActivities([...activities, activity])
+        // Add back to activities bank with all original days
+        const originalActivity = { ...activity, days: activity.days }
+        setActivities([...activities, originalActivity])
+        
+        // Remove from all days in schedule
+        const activityId = result.draggableId
+        const newSchedule = Object.fromEntries(
+          Object.entries(schedule).map(([day, activities]) => [
+            day,
+            activities.filter(a => a.id !== activityId)
+          ])
+        )
+        setSchedule(newSchedule)
       }
-      
-      // Remove from all days
-      const activityId = result.draggableId
-      const newSchedule = Object.fromEntries(
-        Object.entries(schedule).map(([day, activities]) => [
-          day,
-          activities.filter(a => a.id !== activityId)
-        ])
-      )
-      setSchedule(newSchedule)
     }
   }
 
@@ -239,37 +241,117 @@ export default function Page() {
 
   const handleSaveSchedule = async (name: string) => {
     try {
+      // Clean up the schedule by removing empty arrays
+      const cleanSchedule = Object.fromEntries(
+        Object.entries(schedule).filter(([_, activities]) => activities.length > 0)
+      )
+
+      // Only save activities that are in the bank (not in the schedule)
+      const bankActivities = activities.filter(activity => 
+        !Object.values(schedule).flat().some(scheduleActivity => 
+          scheduleActivity.id === activity.id
+        )
+      )
+
+      // Log the cleaned data
+      console.log('Sending cleaned data:', {
+        name,
+        activities: bankActivities,
+        schedule: cleanSchedule
+      })
+
       const res = await fetch('/api/schedules', {
         method: 'POST',
         credentials: 'include',
-        headers: { 
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name,
-          schedule,
-          activities
+          activities: bankActivities,
+          schedule: cleanSchedule
         })
       })
 
       if (!res.ok) {
         const error = await res.json()
-        console.error('Server error:', error)
+        console.error('Server error details:', error)
         throw new Error('Failed to save schedule')
       }
 
       const savedSchedule = await res.json()
-      
-      // Refresh the session to get updated savedSchedules
       router.refresh()
     } catch (error) {
       console.error('Error saving schedule:', error)
     }
   }
 
-  const handleLoadSchedule = (savedSchedule: User['savedSchedules'][0]) => {
-    setSchedule(savedSchedule.schedule)
-    setActivities(savedSchedule.activities)
+  const handleLoadSchedule = (savedSchedule: Schedule) => {
+    console.log('Raw saved schedule:', savedSchedule);
+
+    // Parse activities if they're stored as a string
+    const parsedActivities = typeof savedSchedule.activities === 'string' 
+      ? JSON.parse(savedSchedule.activities)
+      : savedSchedule.activities;
+
+    // Parse schedule if it's stored as a string
+    const parsedSchedule = typeof savedSchedule.schedule === 'string'
+      ? JSON.parse(savedSchedule.schedule)
+      : savedSchedule.schedule;
+
+    // Extract activities from schedule
+    const scheduledActivities = Object.values(parsedSchedule)
+      .flat()
+      .filter((activity): activity is Activity => activity !== null);
+
+    // Combine activities from both sources, removing duplicates by ID
+    const allActivities = [...new Map(
+      [...parsedActivities, ...scheduledActivities]
+        .map(activity => [activity.id, activity])
+    ).values()];
+
+    // Convert stored image data back to File/Blob if it exists
+    const activitiesWithImages = allActivities.map((activity: Activity) => {
+      if (activity.coverImage && 
+          typeof activity.coverImage === 'string' && 
+          activity.coverImage.startsWith('data:image')) {
+        try {
+          const byteString = atob(activity.coverImage.split(',')[1]);
+          const mimeString = activity.coverImage.split(',')[0].split(':')[1].split(';')[0];
+          const ab = new ArrayBuffer(byteString.length);
+          const ia = new Uint8Array(ab);
+          for (let i = 0; i < byteString.length; i++) {
+            ia[i] = byteString.charCodeAt(i);
+          }
+          const blob = new Blob([ab], { type: mimeString });
+          return { ...activity, coverImage: blob };
+        } catch (error) {
+          console.error('Error converting image:', error);
+          return activity;
+        }
+      }
+      return activity;
+    });
+
+    // Ensure all days are initialized with the parsed schedule data
+    const initializedSchedule = {
+      Monday: [],
+      Tuesday: [],
+      Wednesday: [],
+      Thursday: [],
+      Friday: [],
+      Saturday: [],
+      Sunday: [],
+      ...parsedSchedule
+    };
+
+    // Only put activities in the bank that aren't in the schedule
+    const bankActivities = activitiesWithImages.filter(activity => 
+      !Object.values(parsedSchedule).flat().some((scheduleActivity: Activity) => 
+        scheduleActivity.id === activity.id
+      )
+    );
+
+    setActivities(bankActivities as Activity[]);
+    setSchedule(initializedSchedule);
   }
 
   const handleDeleteSchedule = async (scheduleId: string) => {

@@ -1,3 +1,15 @@
 @tailwind base;
 @tailwind components;
-@tailwind utilities; 
+@tailwind utilities;
+
+body {
+  @apply bg-gray-50 text-sm font-mono;
+}
+
+.container {
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+* {
+  font-family: var(--font-inconsolata), monospace;
+} 

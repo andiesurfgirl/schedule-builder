@@ -37,15 +37,36 @@ export default function AddActivityForm({ onAddActivity, initialActivity, onCanc
   const [color, setColor] = useState(initialActivity?.color || pastelColors[Math.floor(Math.random() * pastelColors.length)])
   const [imageUrl, setImageUrl] = useState(initialActivity?.coverImage || '')
   const [showDaysError, setShowDaysError] = useState(false)
+  const [uploadingImage, setUploadingImage] = useState(false)
+  const [uploadError, setUploadError] = useState('')
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (file) {
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setImageUrl(reader.result as string)
+    if (!file) return
+
+    setUploadingImage(true)
+    setUploadError('')
+
+    try {
+      const formData = new FormData()
+      formData.append('image', file)
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData
+      })
+
+      if (!response.ok) {
+        throw new Error('Upload failed')
       }
-      reader.readAsDataURL(file)
+
+      const { url } = await response.json()
+      setImageUrl(url)
+    } catch (error) {
+      console.error('Upload error:', error)
+      setUploadError('Failed to upload image. Please try again.')
+    } finally {
+      setUploadingImage(false)
     }
   }
 
@@ -77,6 +98,7 @@ export default function AddActivityForm({ onAddActivity, initialActivity, onCanc
       setTime('')
       setColor(pastelColors[Math.floor(Math.random() * pastelColors.length)])
       setImageUrl('')
+      setUploadError('')
     }
   }
 
@@ -91,8 +113,8 @@ export default function AddActivityForm({ onAddActivity, initialActivity, onCanc
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md p-6 space-y-4">
-      <h2 className="text-2xl font-mono text-gray-900">Add New Activity</h2>
+    <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-sm p-6 space-y-4">
+      <h2 className="text-xl text-gray-900">Add New Activity</h2>
       
       <div>
         <label htmlFor="name" className="block text-sm font-medium text-gray-700">
@@ -188,6 +210,7 @@ export default function AddActivityForm({ onAddActivity, initialActivity, onCanc
           type="file"
           accept="image/*"
           onChange={handleImageUpload}
+          disabled={uploadingImage}
           className="mt-1 block w-full text-sm text-gray-500
             file:mr-4 file:py-2 file:px-4
             file:rounded-md file:border-0
@@ -195,9 +218,19 @@ export default function AddActivityForm({ onAddActivity, initialActivity, onCanc
             file:bg-[#f7e9e9] file:text-gray-700
             hover:file:bg-[#f0dcdc]"
         />
+        {uploadingImage && (
+          <p className="mt-1 text-sm text-gray-500">Uploading...</p>
+        )}
+        {uploadError && (
+          <p className="mt-1 text-sm text-red-600">{uploadError}</p>
+        )}
         {imageUrl && (
           <div className="mt-2">
-            <img src={imageUrl} alt="Preview" className="w-20 h-20 object-cover rounded-md" />
+            <img 
+              src={imageUrl} 
+              alt="Preview" 
+              className="w-20 h-20 object-cover rounded-md" 
+            />
           </div>
         )}
       </div>

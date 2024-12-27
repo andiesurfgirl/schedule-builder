@@ -1,42 +1,35 @@
-import { NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '../../auth/[...nextauth]/route'
-
-const prisma = new PrismaClient()
+// app/api/schedules/[id]/route.ts
+import { NextRequest, NextResponse } from 'next/server'
+import { getToken } from 'next-auth/jwt'
+import prisma from '../../../../lib/prisma'
 
 export async function DELETE(
-  request: Request,
+  req: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.id) {
+    const token = await getToken({ req })
+    if (!token?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    // Verify the schedule belongs to the user
+    const schedule = await prisma.schedule.findUnique({
+      where: { id: params.id },
+      select: { userId: true }
+    })
+
+    if (!schedule || schedule.userId !== token.sub) {
+      return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    }
+
     await prisma.schedule.delete({
-      where: {
-        id: params.id,
-        userId: session.user.id
-      }
+      where: { id: params.id }
     })
 
-    // Return all schedules after deletion
-    const schedules = await prisma.schedule.findMany({
-      where: {
-        userId: session.user.id
-      },
-      orderBy: {
-        updatedAt: 'desc'
-      }
-    })
-
-    return NextResponse.json(schedules)
+    return NextResponse.json({ success: true })
   } catch (error) {
-    return NextResponse.json(
-      { error: 'Error deleting schedule' },
-      { status: 500 }
-    )
+    console.error('Failed to delete schedule:', error)
+    return NextResponse.json({ error: 'Failed to delete schedule' }, { status: 500 })
   }
-} 
+}

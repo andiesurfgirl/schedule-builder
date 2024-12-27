@@ -4,9 +4,14 @@ import UserSettings from './UserSettings'
 import AuthModal from './AuthModal'
 
 interface UserProfileProps {
-  user: User | null
-  onLogin: (email: string, password: string) => void
-  onSignup: (email: string, password: string, name: string) => void
+  user: {
+    id: string
+    name: string
+    email: string
+    avatar?: string
+  } | null
+  onLogin: (email: string, password: string) => Promise<void>
+  onSignup: (email: string, password: string, name: string) => Promise<void>
   onUpdateUser: (updates: Partial<User>) => void
   onSaveSchedule: (name: string) => void
   onLoadSchedule: (schedule: User['savedSchedules'][0]) => void

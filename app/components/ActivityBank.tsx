@@ -8,8 +8,8 @@ interface ActivityBankProps {
 
 export default function ActivityBank({ activities }: ActivityBankProps) {
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
-      <h2 className="text-2xl font-mono text-gray-900 mb-4">Activity Bank</h2>
+    <div className="bg-white rounded-lg shadow-sm p-6">
+      <h2 className="text-xl text-gray-900 mb-4">Activity Bank</h2>
       <StrictModeDroppable droppableId="bank">
         {(provided) => (
           <ul

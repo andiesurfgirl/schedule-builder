@@ -96,7 +96,6 @@ export default function Calendar({ schedule, conflicts, onActivityClick, handleE
     const height = activity.duration
 
     const hasConflict = conflicts[day]?.includes(activity.id)
-    const opacity = hasConflict ? 0.7 : 0.9
 
     return {
       position: 'absolute',
@@ -104,41 +103,49 @@ export default function Calendar({ schedule, conflicts, onActivityClick, handleE
       height: `${height}px`,
       width: 'calc(100% - 8px)',
       backgroundColor: activity.color,
-      opacity,
+      opacity: 0.9,
       borderRadius: '4px',
       padding: '4px',
       fontSize: '12px',
       overflow: 'hidden',
-      border: hasConflict ? '2px solid red' : 'none',
-      backgroundImage: activity.coverImage ? `url(${activity.coverImage})` : 'none',
-      backgroundSize: 'cover',
-      backgroundPosition: 'center',
+      cursor: 'pointer',
+      border: '1px dashed black',
+      transition: 'all 0.2s ease',
+      boxShadow: hasConflict ? '0 0 0 2px red' : 'none',
     }
   }
 
   const renderActivityContent = (activity: Activity) => (
     <div style={{ 
-      backgroundColor: activity.coverImage ? activity.color : 'transparent',
-      padding: '2px 4px',
-      borderRadius: '2px',
-      display: 'inline-block'
+      backgroundImage: activity.coverImage ? `url(${activity.coverImage})` : 'none',
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      height: '100%',
+      width: '100%',
     }}>
-      {activity.name}
+      <span style={{
+        backgroundColor: activity.color,
+        padding: '2px 4px',
+        borderRadius: '2px',
+        display: 'inline-block'
+      }}>
+        {activity.name}
+      </span>
     </div>
   )
 
   return (
-    <div className="w-full overflow-x-auto bg-white rounded-lg shadow-md p-6">
+    <div className="w-full overflow-x-auto bg-white rounded-lg shadow-sm p-6">
       <div className="flex">
         <div className="w-16"></div>
         {days.map(day => (
-          <div key={day} className="flex-1 text-center font-semibold">{day}</div>
+          <div key={day} className="flex-1 text-center text-sm text-gray-700">{day}</div>
         ))}
       </div>
       <div className="flex">
         <div className="w-16">
           {hours.map(hour => (
-            <div key={hour} className="h-[60px] text-right pr-2 text-sm text-gray-500">
+            <div key={hour} className="h-[60px] text-right pr-2 text-sm font-mono text-gray-500">
               {hour.toString().padStart(2, '0')}:00
             </div>
           ))}
@@ -149,7 +156,7 @@ export default function Calendar({ schedule, conflicts, onActivityClick, handleE
               <div
                 {...provided.droppableProps}
                 ref={provided.innerRef}
-                className="flex-1 border-l relative"
+                className="flex-1 border-l border-gray-200 relative"
                 style={{ height: `${24 * 60}px` }}
               >
                 {hours.map(hour => (
@@ -164,12 +171,11 @@ export default function Calendar({ schedule, conflicts, onActivityClick, handleE
                         {...provided.dragHandleProps}
                         data-activity-id={activity.id}
                         onClick={(e) => handleActivityClick(activity, day, e)}
-                        style={
-                          {
-                            ...getActivityStyle(activity, day),
-                            ...(provided.draggableProps.style || {})
-                          } as React.CSSProperties
-                        }
+                        className="hover:shadow-md transition-shadow"
+                        style={{
+                          ...getActivityStyle(activity, day),
+                          ...(provided.draggableProps.style || {})
+                        } as React.CSSProperties}
                       >
                         {renderActivityContent(activity)}
                       </div>
