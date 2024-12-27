@@ -3,13 +3,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getToken } from 'next-auth/jwt'
 import prisma from '../../../../lib/prisma'
 
-interface RouteParams {
-  params: { id: string }
-}
-
 export async function DELETE(
   req: NextRequest,
-  context: RouteParams
+  { params }: { params: { id: string } }
 ) {
   try {
     const token = await getToken({ req })
@@ -19,7 +15,7 @@ export async function DELETE(
 
     // Verify the schedule belongs to the user
     const schedule = await prisma.schedule.findUnique({
-      where: { id: context.params.id },
+      where: { id: params.id },
       select: { userId: true }
     })
 
@@ -28,7 +24,7 @@ export async function DELETE(
     }
 
     await prisma.schedule.delete({
-      where: { id: context.params.id }
+      where: { id: params.id }
     })
 
     return NextResponse.json({ success: true })
