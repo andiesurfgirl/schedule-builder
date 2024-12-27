@@ -25,7 +25,7 @@ export default function Page() {
   const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null)
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 })
   const [isEditing, setIsEditing] = useState(false)
-  const [user, setUser] = useState(null)
+  const [user, setUser] = useState<User | null>(null)
 
   useEffect(() => {
     setEnabled(true)
@@ -241,9 +241,8 @@ export default function Page() {
   }
 
   const handleUpdateUser = (updates: Partial<User>) => {
-    if (user) {
-      setUser({ ...user, ...updates })
-    }
+    if (!user) return
+    setUser({ ...user, ...updates })
   }
 
   const handleSaveSchedule = async (name: string) => {
