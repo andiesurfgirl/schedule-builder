@@ -63,13 +63,13 @@ export const authOptions: AuthOptions = {
         const existingUser = await prisma.user.upsert({
           where: { email: user.email! },
           update: {
-            name: user.name,
-            avatar: user.image
+            name: user.name || undefined,
+            avatar: user.image || undefined
           },
           create: {
             email: user.email!,
             name: user.name!,
-            avatar: user.image,
+            avatar: user.image || undefined,
             password: '' // Empty password for OAuth users
           }
         })
