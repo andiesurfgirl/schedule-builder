@@ -1,12 +1,12 @@
 import NextAuth from 'next-auth'
+import { AuthOptions } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import { PrismaClient } from '@prisma/client'
-import bcrypt from 'bcrypt'
-import type { NextAuthOptions } from 'next-auth'
+import bcrypt from 'bcryptjs'
 
 const prisma = new PrismaClient()
 
-export const authOptions: NextAuthOptions = {
+export const authOptions: AuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
   providers: [
     CredentialsProvider({
@@ -43,7 +43,6 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async jwt({ token, user }) {
-      console.log('JWT callback:', { token, user })
       if (user) {
         token.id = user.id
         token.savedSchedules = user.savedSchedules
@@ -51,7 +50,6 @@ export const authOptions: NextAuthOptions = {
       return token
     },
     async session({ session, token }) {
-      console.log('Session callback:', { session, token })
       if (session.user) {
         session.user.id = token.id as string
         session.user.savedSchedules = token.savedSchedules as any[]
