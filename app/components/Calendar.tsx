@@ -18,7 +18,17 @@ interface OverlapInfo {
 }
 
 const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-const hours = Array.from({ length: 24 }, (_, i) => i)
+
+const formatTime = (hour: number): string => {
+  const period = hour >= 12 ? ' PM' : ' AM'
+  const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour
+  return `${displayHour}${period}`
+}
+
+const hours = Array.from({ length: 24 }, (_, i) => ({
+  value: i,
+  display: formatTime(i)
+}))
 
 export default function Calendar({ schedule, conflicts, onActivityClick, handleEditActivity }: CalendarProps) {
   const [overlapInfo, setOverlapInfo] = useState<OverlapInfo | null>(null)
@@ -145,8 +155,8 @@ export default function Calendar({ schedule, conflicts, onActivityClick, handleE
       <div className="flex">
         <div className="w-16">
           {hours.map(hour => (
-            <div key={hour} className="h-[60px] text-right pr-2 text-sm font-mono text-gray-500">
-              {hour.toString().padStart(2, '0')}:00
+            <div key={hour.value} className="h-[60px] text-right pr-2 text-sm font-mono text-gray-500">
+              {hour.display}
             </div>
           ))}
         </div>
@@ -160,7 +170,7 @@ export default function Calendar({ schedule, conflicts, onActivityClick, handleE
                 style={{ height: `${24 * 60}px` }}
               >
                 {hours.map(hour => (
-                  <div key={hour} className="h-[60px] border-b border-gray-100"></div>
+                  <div key={hour.value} className="h-[60px] border-b border-gray-100"></div>
                 ))}
                 {schedule[day].map((activity, index) => (
                   <Draggable key={activity.id} draggableId={activity.id} index={index}>

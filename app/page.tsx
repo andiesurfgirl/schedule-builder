@@ -205,12 +205,39 @@ export default function Page() {
       })
       
       if (result?.error) {
-        console.error('Login failed:', result.error)
-        // Handle error (show message to user)
+        console.error('Login error:', result.error)
+        // Show error to user here
+        return
+      }
+
+      if (result?.ok) {
+        window.location.reload() // Force a refresh to update the session
       }
     } catch (error) {
       console.error('Login error:', error)
-      // Handle error (show message to user)
+      // Show error to user here
+    }
+  }
+
+  const handleGitHubLogin = async () => {
+    try {
+      await signIn('github', {
+        callbackUrl: window.location.origin,
+      })
+    } catch (error) {
+      console.error('GitHub login error:', error)
+      // Show error to user here
+    }
+  }
+
+  const handleGoogleLogin = async () => {
+    try {
+      await signIn('google', {
+        callbackUrl: window.location.origin,
+      })
+    } catch (error) {
+      console.error('Google login error:', error)
+      // Show error to user here
     }
   }
 
