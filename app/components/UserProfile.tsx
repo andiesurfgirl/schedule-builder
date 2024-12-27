@@ -36,7 +36,10 @@ export default function UserProfile({
         .then(res => res.json())
         .then(data => {
           console.log('Fetched schedules:', data)
-          setSavedSchedules(data)
+          const sortedSchedules = [...data].sort((a, b) => 
+            new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+          )
+          setSavedSchedules(sortedSchedules)
         })
         .catch(console.error)
     }
@@ -106,9 +109,12 @@ export default function UserProfile({
                 className="flex-1 min-w-0 px-2 py-1 border rounded"
               />
               <button
-                onClick={() => {
+                onClick={async () => {
                   if (newScheduleName.trim()) {
-                    onSaveSchedule(newScheduleName)
+                    await onSaveSchedule(newScheduleName)
+                    const res = await fetch('/api/schedules', { credentials: 'include' })
+                    const data = await res.json()
+                    setSavedSchedules(data)
                     setNewScheduleName('')
                   }
                 }}
@@ -135,7 +141,10 @@ export default function UserProfile({
                     </div>
                     <div className="flex space-x-2 items-center">
                       <button
-                        onClick={() => onDeleteSchedule(schedule.id)}
+                        onClick={async () => {
+                          await onDeleteSchedule(schedule.id)
+                          setSavedSchedules(savedSchedules.filter(s => s.id !== schedule.id))
+                        }}
                         className="text-gray-400 hover:text-gray-600 p-1"
                         aria-label="Delete schedule"
                       >

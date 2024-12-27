@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
-import { getServerSession } from 'next-auth/next'
+import { getServerSession } from 'next-auth'
 import { authOptions } from '../../auth/[...nextauth]/route'
 
 const prisma = new PrismaClient()
@@ -22,7 +22,17 @@ export async function DELETE(
       }
     })
 
-    return NextResponse.json({ success: true })
+    // Return all schedules after deletion
+    const schedules = await prisma.schedule.findMany({
+      where: {
+        userId: session.user.id
+      },
+      orderBy: {
+        updatedAt: 'desc'
+      }
+    })
+
+    return NextResponse.json(schedules)
   } catch (error) {
     console.error('Delete schedule error:', error)
     return NextResponse.json(

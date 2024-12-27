@@ -31,13 +31,19 @@ export default function Page() {
     setEnabled(true)
   }, [])
 
-  const [activities, setActivities] = useState<Activity[]>([
-    { id: '1', name: 'Ballet I', duration: 90, days: ['Monday', 'Wednesday'], time: '12:00', color: '#FFE4E4' },
-    { id: '2', name: 'Cello Lesson', duration: 60, days: ['Tuesday'], time: '15:00', color: '#E6FFF0' },
-    { id: '3', name: 'Surf Practice', duration: 120, days: ['Thursday', 'Saturday'], time: '16:00', color: '#E6F0FF' },
-    { id: '4', name: 'Computer Science II', duration: 90, days: ['Monday', 'Tuesday', 'Thursday'], time: '09:20', color: '#F4D9E4' },
-    { id: '5', name: 'Physics II', duration: 90, days: ['Monday', 'Tuesday', 'Thursday'], time: '08:00', color: '#FFFAE6' },
-  ])
+  const [activities, setActivities] = useState<Activity[]>(() => {
+    // Only show preset activities if no user is logged in
+    if (!session?.user) {
+      return [
+        { id: '1', name: 'Ballet I', duration: 90, days: ['Monday', 'Wednesday'], time: '12:00', color: '#FFE4E4' },
+        { id: '2', name: 'Cello Lesson', duration: 60, days: ['Tuesday'], time: '15:00', color: '#E6FFF0' },
+        { id: '3', name: 'Surf Practice', duration: 120, days: ['Thursday', 'Saturday'], time: '16:00', color: '#E6F0FF' },
+        { id: '4', name: 'Computer Science II', duration: 90, days: ['Monday', 'Tuesday', 'Thursday'], time: '09:20', color: '#F4D9E4' },
+        { id: '5', name: 'Physics II', duration: 90, days: ['Monday', 'Tuesday', 'Thursday'], time: '08:00', color: '#FFFAE6' },
+      ]
+    }
+    return []
+  })
 
   const [schedule, setSchedule] = useState<{ [key: string]: Activity[] }>({
     Monday: [],
