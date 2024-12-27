@@ -1,14 +1,17 @@
 {
   "dependencies": {
     "@hello-pangea/dnd": "latest",
-    "next": "latest",
-    "react": "latest",
-    "react-dom": "latest",
+    "@prisma/client": "^6.1.0",
     "@tailwindcss/forms": "latest",
     "@types/node": "^22.10.2",
     "@types/react": "^19.0.2",
     "autoprefixer": "^10.4.20",
+    "bcrypt": "^5.1.1",
+    "next": "latest",
+    "next-auth": "^4.24.11",
     "postcss": "^8.4.49",
+    "react": "latest",
+    "react-dom": "latest",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.7.2"
   },
@@ -16,5 +19,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.2"
   }
 }

@@ -8,3 +8,18 @@ export interface Activity {
   coverImage?: string  // URL of the image
 }
 
+export interface User {
+  id: string
+  name: string
+  email: string
+  avatar?: string
+  savedSchedules: {
+    id: string
+    name: string
+    schedule: { [key: string]: Activity[] }
+    activities: Activity[]
+    createdAt: string
+    updatedAt: string
+  }[]
+}
+

@@ -1,16 +1,25 @@
+import { Inter } from 'next/font/google'
 import './globals.css'
-import { Inconsolata } from 'next/font/google'
+import { getServerSession } from 'next-auth/next'
+import { authOptions } from './api/auth/[...nextauth]/route'
+import AuthProvider from './providers/AuthProvider'
 
-const inconsolata = Inconsolata({ subsets: ['latin'] })
+const inter = Inter({ subsets: ['latin'] })
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const session = await getServerSession(authOptions)
+
   return (
     <html lang="en">
-      <body className={`min-h-screen bg-gray-50 ${inconsolata.className}`}>{children}</body>
+      <body className={inter.className}>
+        <AuthProvider session={session}>
+          {children}
+        </AuthProvider>
+      </body>
     </html>
   )
 }

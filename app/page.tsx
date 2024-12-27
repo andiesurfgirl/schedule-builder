@@ -6,16 +6,26 @@ import { StrictModeDroppable } from './components/StrictModeDroppable'
 import ActivityBank from './components/ActivityBank'
 import Calendar from './components/Calendar'
 import AddActivityForm from './components/AddActivityForm'
-import { Activity } from './types'
+import { Activity, User } from './types'
 import CalendarExport from './components/CalendarExport'
 import ActivityMenu from './components/ActivityMenu'
+import UserProfile from './components/UserProfile'
+import { useSession, signIn, signOut } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 
-export default function ScheduleBuilder() {
+const defaultProfilePic = "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop&q=60"
+
+export default function Page() {
+  const { data: session } = useSession()
+  console.log('Session user:', session?.user)
+  const router = useRouter()
+  
   // Add enabled state to handle hydration
   const [enabled, setEnabled] = useState(false)
   const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null)
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 })
   const [isEditing, setIsEditing] = useState(false)
+  const [user, setUser] = useState(null)
 
   useEffect(() => {
     setEnabled(true)
@@ -172,6 +182,94 @@ export default function ScheduleBuilder() {
     setSelectedActivity(null)
   }
 
+  const handleLogin = async (email: string, password: string) => {
+    try {
+      const result = await signIn('credentials', {
+        email,
+        password,
+        redirect: false
+      })
+      
+      if (result?.error) {
+        console.error('Login failed:', result.error)
+        // Handle error (show message to user)
+      }
+    } catch (error) {
+      console.error('Login error:', error)
+      // Handle error (show message to user)
+    }
+  }
+
+  const handleSignup = async (email: string, password: string, name: string) => {
+    try {
+      // Call signup API
+      const res = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, name })
+      })
+
+      if (!res.ok) {
+        const error = await res.json()
+        throw new Error(error.error)
+      }
+
+      // If signup successful, log user in
+      await handleLogin(email, password)
+    } catch (error) {
+      console.error('Signup error:', error)
+      // Handle error (show message to user)
+    }
+  }
+
+  const handleLogout = () => {
+    signOut()
+  }
+
+  const handleUpdateUser = (updates: Partial<User>) => {
+    if (user) {
+      setUser({ ...user, ...updates })
+    }
+  }
+
+  const handleSaveSchedule = async (name: string) => {
+    try {
+      console.log('Saving schedule:', { name, schedule, activities })
+      
+      const res = await fetch('/api/schedules', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name,
+          schedule,
+          activities
+        })
+      })
+
+      if (!res.ok) {
+        const error = await res.json()
+        console.error('Server error:', error)
+        throw new Error('Failed to save schedule')
+      }
+
+      const savedSchedule = await res.json()
+      console.log('Schedule saved:', savedSchedule)
+      
+      // Refresh the session to get updated savedSchedules
+      router.refresh()
+    } catch (error) {
+      console.error('Error saving schedule:', error)
+    }
+  }
+
+  const handleLoadSchedule = (savedSchedule: User['savedSchedules'][0]) => {
+    setSchedule(savedSchedule.schedule)
+    setActivities(savedSchedule.activities)
+  }
+
   if (!enabled) {
     return null
   }
@@ -179,9 +277,20 @@ export default function ScheduleBuilder() {
   return (
     <div className="container mx-auto p-4 space-y-8 min-h-screen flex flex-col">
       <div className="flex-grow">
-        <div className="flex justify-between items-center pt-6 pb-8">
+        <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-mono text-gray-900">Schedule Builder</h1>
-          <CalendarExport schedule={schedule} />
+          <div className="flex items-center space-x-4">
+            <CalendarExport schedule={schedule} />
+            <UserProfile 
+              user={session?.user}
+              onLogin={handleLogin}
+              onSignup={handleSignup}
+              onUpdateUser={handleUpdateUser}
+              onSaveSchedule={handleSaveSchedule}
+              onLoadSchedule={handleLoadSchedule}
+              onLogout={handleLogout}
+            />
+          </div>
         </div>
         
         {enabled && (
@@ -230,14 +339,13 @@ export default function ScheduleBuilder() {
       </div>
 
       <footer className="text-center text-sm text-gray-600 py-4">
-        made with ♥️ in atl by{' '}
         <a 
           href="https://andieinprogress.net" 
           target="_blank" 
           rel="noopener noreferrer"
           className="text-gray-800 hover:underline"
         >
-          andie
+          made with ♥️ in atl
         </a>
       </footer>
     </div>
