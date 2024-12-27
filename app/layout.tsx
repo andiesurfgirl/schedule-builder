@@ -1,7 +1,7 @@
 import { Inter } from 'next/font/google'
 import './globals.css'
 import { getServerSession } from 'next-auth/next'
-import { authOptions } from './api/auth/[...nextauth]/route'
+import { authOptions } from '../lib/auth'
 import AuthProvider from './providers/AuthProvider'
 import { Inconsolata } from 'next/font/google'
 

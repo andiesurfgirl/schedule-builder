@@ -91,15 +91,13 @@ export default function AddActivityForm({ onAddActivity, initialActivity, onCanc
       coverImage: imageUrl || undefined
     })
     
-    if (!initialActivity) {
-      setName('')
-      setDuration('')
-      setDays([])
-      setTime('')
-      setColor(pastelColors[Math.floor(Math.random() * pastelColors.length)])
-      setImageUrl('')
-      setUploadError('')
-    }
+    setName('')
+    setDuration('')
+    setDays([])
+    setTime('')
+    setColor(pastelColors[Math.floor(Math.random() * pastelColors.length)])
+    setImageUrl('')
+    setShowDaysError(false)
   }
 
   const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']

@@ -71,13 +71,16 @@ export default function Page() {
     if (sourceDay === 'bank' && destDay !== 'bank') {
       const activity = activities.find(a => a.id === result.draggableId)
       if (activity) {
+        // Store original days
+        const originalDays = [...activity.days]
+        
         // Create a new schedule object
         const newSchedule = { ...schedule }
         
         // Add the activity to all designated days
-        activity.days.forEach(day => {
+        originalDays.forEach(day => {
           if (!newSchedule[day]) newSchedule[day] = []
-          newSchedule[day] = [...newSchedule[day], { ...activity, days: [day] }]
+          newSchedule[day] = [...newSchedule[day], { ...activity, days: originalDays }]
         })
         
         // Remove the activity from the bank
@@ -88,9 +91,13 @@ export default function Page() {
       // Get the activity from the schedule
       const activity = schedule[sourceDay].find(a => a.id === result.draggableId)
       if (activity) {
-        // Add back to activities bank with all original days
-        const originalActivity = { ...activity, days: activity.days }
-        setActivities([...activities, originalActivity])
+        // Find all instances of this activity to get all days
+        const allDays = Object.entries(schedule)
+          .filter(([_, activities]) => activities.some(a => a.id === activity.id))
+          .map(([day, _]) => day)
+
+        // Add back to activities bank with all days
+        setActivities([...activities, { ...activity, days: allDays }])
         
         // Remove from all days in schedule
         const activityId = result.draggableId
