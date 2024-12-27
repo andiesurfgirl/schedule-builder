@@ -88,6 +88,9 @@ export const authOptions: AuthOptions = {
         session.user.id = token.id as string
       }
       return session
+    },
+    async redirect({ url, baseUrl }) {
+      return baseUrl
     }
   }
 } 
