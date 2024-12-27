@@ -2,18 +2,24 @@ import { useState } from 'react'
 import { User } from '../types'
 
 interface UserSettingsProps {
-  user: User
-  onUpdateUser: (updates: Partial<User>) => void
+  user: {
+    name: string
+    email: string
+    avatar?: string
+  }
+  onUpdateUser: (updates: { name: string, email: string, avatar?: string }) => void
   onClose: () => void
+  onLogout: () => void
 }
 
-export default function UserSettings({ user, onUpdateUser, onClose }: UserSettingsProps) {
+export default function UserSettings({ user, onUpdateUser, onClose, onLogout }: UserSettingsProps) {
   const [name, setName] = useState(user.name)
+  const [email, setEmail] = useState(user.email)
   const [avatarUrl, setAvatarUrl] = useState(user.avatar || '')
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    onUpdateUser({ name, avatar: avatarUrl })
+    onUpdateUser({ name, email, avatar: avatarUrl })
     onClose()
   }
 
@@ -28,6 +34,15 @@ export default function UserSettings({ user, onUpdateUser, onClose }: UserSettin
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
             />
           </div>
@@ -63,6 +78,16 @@ export default function UserSettings({ user, onUpdateUser, onClose }: UserSettin
               Cancel
             </button>
           </div>
+          <button
+            type="button"
+            onClick={() => {
+              onLogout()
+              onClose()
+            }}
+            className="w-full py-2 px-4 text-sm border border-dashed border-black rounded-md bg-gray-100 hover:bg-gray-200"
+          >
+            Logout
+          </button>
         </form>
       </div>
     </div>

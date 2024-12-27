@@ -11,6 +11,7 @@ interface UserProfileProps {
   onSaveSchedule: (name: string) => void
   onLoadSchedule: (schedule: User['savedSchedules'][0]) => void
   onLogout: () => void
+  onDeleteSchedule: (scheduleId: string) => void
 }
 
 export default function UserProfile({ 
@@ -20,7 +21,8 @@ export default function UserProfile({
   onUpdateUser,
   onSaveSchedule, 
   onLoadSchedule,
-  onLogout 
+  onLogout,
+  onDeleteSchedule
 }: UserProfileProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [newScheduleName, setNewScheduleName] = useState('')
@@ -124,25 +126,31 @@ export default function UserProfile({
                 <p className="text-sm text-gray-500 text-center py-2">No saved schedules yet</p>
               ) : (
                 savedSchedules.map((schedule) => (
-                  <div 
-                    key={schedule.id}
-                    className="flex justify-between items-center p-2 hover:bg-gray-50 rounded"
-                  >
-                    <div>
+                  <div key={schedule.id} className="flex justify-between items-center p-2 hover:bg-gray-50 rounded">
+                    <div className="flex-grow">
                       <div className="font-medium">{schedule.name}</div>
                       <div className="text-xs text-gray-500">
                         Updated {new Date(schedule.updatedAt).toLocaleDateString()}
                       </div>
                     </div>
-                    <button
-                      onClick={() => {
-                        onLoadSchedule(schedule)
-                        setIsOpen(false)
-                      }}
-                      className="px-2 py-1 text-sm bg-[#f7e9e9] rounded border border-dashed border-black"
-                    >
-                      Load
-                    </button>
+                    <div className="flex space-x-2 items-center">
+                      <button
+                        onClick={() => onDeleteSchedule(schedule.id)}
+                        className="text-gray-400 hover:text-gray-600 p-1"
+                        aria-label="Delete schedule"
+                      >
+                        ×
+                      </button>
+                      <button
+                        onClick={() => {
+                          onLoadSchedule(schedule)
+                          setIsOpen(false)
+                        }}
+                        className="px-2 py-1 text-sm bg-[#f7e9e9] rounded border border-dashed border-black"
+                      >
+                        Load
+                      </button>
+                    </div>
                   </div>
                 ))
               )}
@@ -156,6 +164,7 @@ export default function UserProfile({
           user={user}
           onUpdateUser={onUpdateUser}
           onClose={() => setShowSettings(false)}
+          onLogout={onLogout}
         />
       )}
     </div>

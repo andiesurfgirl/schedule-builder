@@ -270,6 +270,24 @@ export default function Page() {
     setActivities(savedSchedule.activities)
   }
 
+  const handleDeleteSchedule = async (scheduleId: string) => {
+    try {
+      const res = await fetch(`/api/schedules/${scheduleId}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      })
+
+      if (!res.ok) {
+        throw new Error('Failed to delete schedule')
+      }
+
+      // Refresh to update the list
+      router.refresh()
+    } catch (error) {
+      console.error('Error deleting schedule:', error)
+    }
+  }
+
   if (!enabled) {
     return null
   }
@@ -289,6 +307,7 @@ export default function Page() {
               onSaveSchedule={handleSaveSchedule}
               onLoadSchedule={handleLoadSchedule}
               onLogout={handleLogout}
+              onDeleteSchedule={handleDeleteSchedule}
             />
           </div>
         </div>
