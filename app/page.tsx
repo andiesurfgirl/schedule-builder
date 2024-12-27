@@ -17,7 +17,6 @@ const defaultProfilePic = "https://images.unsplash.com/photo-1507525428034-b723c
 
 export default function Page() {
   const { data: session } = useSession()
-  console.log('Session user:', session?.user)
   const router = useRouter()
   
   // Add enabled state to handle hydration
@@ -240,8 +239,6 @@ export default function Page() {
 
   const handleSaveSchedule = async (name: string) => {
     try {
-      console.log('Saving schedule:', { name, schedule, activities })
-      
       const res = await fetch('/api/schedules', {
         method: 'POST',
         credentials: 'include',
@@ -262,7 +259,6 @@ export default function Page() {
       }
 
       const savedSchedule = await res.json()
-      console.log('Schedule saved:', savedSchedule)
       
       // Refresh the session to get updated savedSchedules
       router.refresh()

@@ -31,7 +31,6 @@ export async function POST(request: Request) {
 
     return NextResponse.json(savedSchedule)
   } catch (error) {
-    console.error('Save schedule error:', error)
     return NextResponse.json(
       { error: 'Error saving schedule' },
       { status: 500 }
@@ -55,7 +54,6 @@ export async function GET(request: Request) {
 
     return NextResponse.json(user?.savedSchedules || [])
   } catch (error) {
-    console.error('Get schedules error:', error)
     return NextResponse.json(
       { error: 'Error getting schedules' },
       { status: 500 }

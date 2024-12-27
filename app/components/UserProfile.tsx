@@ -35,7 +35,6 @@ export default function UserProfile({
       fetch('/api/schedules', { credentials: 'include' })
         .then(res => res.json())
         .then(data => {
-          console.log('Fetched schedules:', data)
           const sortedSchedules = [...data].sort((a, b) => 
             new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
           )

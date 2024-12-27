@@ -34,7 +34,6 @@ export async function DELETE(
 
     return NextResponse.json(schedules)
   } catch (error) {
-    console.error('Delete schedule error:', error)
     return NextResponse.json(
       { error: 'Error deleting schedule' },
       { status: 500 }
