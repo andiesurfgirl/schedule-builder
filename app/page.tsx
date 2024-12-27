@@ -389,8 +389,8 @@ export default function Page() {
           <h1 className="text-3xl font-mono text-gray-900">Schedule Builder</h1>
           <div className="flex items-center space-x-4">
             <CalendarExport schedule={schedule} />
-            <UserProfile 
-              user={session?.user}
+            <UserProfile
+              user={session?.user ?? null}
               onLogin={handleLogin}
               onSignup={handleSignup}
               onUpdateUser={handleUpdateUser}
