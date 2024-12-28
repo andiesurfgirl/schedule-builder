@@ -302,14 +302,16 @@ export default function AddActivityForm({ onAddActivity, initialActivity, onCanc
         </form>
       </div>
       
-      <div className="text-center">
-        <button
-          onClick={() => setShowHowTo(true)}
-          className="text-sm text-gray-600 hover:text-gray-900 hover:underline"
-        >
-          How to use
-        </button>
-      </div>
+      {!initialActivity && (
+        <div className="text-center">
+          <button
+            onClick={() => setShowHowTo(true)}
+            className="text-sm text-gray-600 hover:text-gray-900 hover:underline"
+          >
+            How to use
+          </button>
+        </div>
+      )}
 
       {showHowTo && <HowToUseModal onClose={() => setShowHowTo(false)} />}
     </div>
