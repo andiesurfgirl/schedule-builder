@@ -8,17 +8,17 @@ datasource db {
 }
 
 model User {
-  id            String     @id @default(cuid())
-  email         String     @unique  // Remove optional
-  name          String     // Remove optional
-  password      String?    // Keep optional for OAuth
-  avatar        String?    // Keep optional
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
-  savedSchedules Schedule[]
-  
-  accounts      Account[]
-  sessions      Session[]
+  id                String     @id @default(cuid())
+  email             String     @unique
+  name              String
+  password          String?
+  avatar            String?
+  suggestions_enabled Boolean   @default(false)
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+  savedSchedules    Schedule[]
+  accounts          Account[]
+  sessions          Session[]
 }
 
 model Schedule {

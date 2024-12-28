@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getToken } from 'next-auth/jwt'
 import prisma from '../../../lib/prisma'
+import { Prisma } from '@prisma/client'
 
 export async function PUT(req: NextRequest) {
   try {
@@ -8,37 +9,56 @@ export async function PUT(req: NextRequest) {
       req,
       secret: process.env.NEXTAUTH_SECRET 
     })
+    console.log('Token received:', token)
     
-    if (!token?.email) {
+    if (!token?.sub) {
       console.log('Auth failed:', { token })
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const updates = await req.json()
-    console.log('Updating user:', { email: token.email, updates })
+    console.log('Processing updates:', updates)
     
+    // First check if user exists
+    const existingUser = await prisma.user.findUnique({
+      where: { id: token.sub }
+    })
+
+    if (!existingUser) {
+      console.error('No user found with ID:', token.sub)
+      return NextResponse.json({ error: 'User not found' }, { status: 404 })
+    }
+
+    // Then perform the update
     const user = await prisma.user.update({
-      where: { email: token.email },
+      where: { id: token.sub },
       data: {
-        name: updates.name,
-        email: updates.email,
-        avatar: updates.avatar || undefined
+        name: updates.name || undefined,
+        email: updates.email || undefined,
+        avatar: updates.avatar || undefined,
+        suggestions_enabled: updates.suggestions_enabled
       },
       select: {
         id: true,
         name: true,
         email: true,
-        avatar: true
+        avatar: true,
+        suggestions_enabled: true
       }
     })
 
-    console.log('User updated:', user)
+    console.log('Updated user data:', user)
     return NextResponse.json(user)
-  } catch (error) {
-    console.error('Profile update error:', error)
-    return NextResponse.json({ 
-      error: 'Failed to update profile',
-      details: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 })
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err)
+    console.error('Prisma or other error:', message)
+
+    return NextResponse.json(
+      { 
+        error: 'Failed to update profile',
+        details: message,
+      },
+      { status: 500 }
+    )
   }
 } 
