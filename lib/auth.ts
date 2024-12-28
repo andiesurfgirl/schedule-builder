@@ -47,7 +47,7 @@ export const authOptions: AuthOptions = {
         return {
           id: user.id,
           email: user.email,
-          name: user.name,
+          name: user.name || 'Anonymous',
           avatar: user.avatar
         }
       }
