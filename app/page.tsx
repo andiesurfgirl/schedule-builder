@@ -11,8 +11,9 @@ import { Schedule } from './types/schedule'
 import CalendarExport from './components/CalendarExport'
 import ActivityMenu from './components/ActivityMenu'
 import UserProfile from './components/UserProfile'
-import { useSession, signIn, signOut } from 'next-auth/react'
+import { signIn, signOut, useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
+import ScheduleSuggestions from './components/ScheduleSuggestions'
 
 const defaultProfilePic = "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop&q=60"
 
@@ -26,6 +27,8 @@ export default function Page() {
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 })
   const [isEditing, setIsEditing] = useState(false)
   const [user, setUser] = useState<User | null>(null)
+  const [showSuggestions, setShowSuggestions] = useState(false)
+  const [suggestions_enabled, setsuggestions_enabled] = useState(false)
 
   useEffect(() => {
     setEnabled(true)
@@ -269,6 +272,8 @@ export default function Page() {
 
   const handleUpdateUser = async (updates: Partial<User>) => {
     try {
+      console.log('Starting update with:', updates)
+      
       const res = await fetch('/api/user', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -277,24 +282,24 @@ export default function Page() {
       })
 
       const data = await res.json()
+      console.log('Server response:', data)
 
       if (!res.ok) {
         throw new Error(data.error || 'Failed to update profile')
       }
 
-      // Update the session using NextAuth's update method
-      await updateSession({
-        ...session,
+      // Update the session with just the user data
+      const result = await updateSession({
         user: {
           ...session?.user,
           ...data
         }
       })
-
-      window.location.reload()
+      
+      console.log('Session update result:', result)
       return data
     } catch (error) {
-      console.error('Error updating user:', error)
+      console.error('Detailed update error:', error)
       throw error
     }
   }
@@ -432,6 +437,20 @@ export default function Page() {
     }
   }
 
+  const handleApplySuggestion = (updatedSchedule: { [key: string]: Activity[] }) => {
+    setSchedule(updatedSchedule)
+    setShowSuggestions(false)
+  }
+
+  // Add this effect to show suggestions when conflicts are detected
+  useEffect(() => {
+    if (suggestions_enabled && Object.keys(conflicts).length > 0) {
+      setShowSuggestions(true)
+    } else {
+      setShowSuggestions(false)
+    }
+  }, [conflicts, suggestions_enabled])
+
   if (!enabled) {
     return null
   }
@@ -452,6 +471,8 @@ export default function Page() {
               onLoadSchedule={handleLoadSchedule}
               onLogout={handleLogout}
               onDeleteSchedule={handleDeleteSchedule}
+              suggestions_enabled={suggestions_enabled}
+              onToggleSuggestions={setsuggestions_enabled}
             />
           </div>
         </div>
@@ -497,6 +518,19 @@ export default function Page() {
                 }}
               />
             </div>
+          </div>
+        )}
+
+        {showSuggestions && (
+          <div className="fixed bottom-4 right-4 z-50 max-w-md w-full">
+            <ScheduleSuggestions
+              schedule={schedule}
+              conflicts={conflicts}
+              onApplySuggestion={(updatedSchedule) => {
+                setSchedule(updatedSchedule)
+                setShowSuggestions(false)
+              }}
+            />
           </div>
         )}
       </div>

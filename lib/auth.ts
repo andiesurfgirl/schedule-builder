@@ -41,7 +41,8 @@ export const authOptions: AuthOptions = {
           id: user.id,
           email: user.email,
           name: user.name,
-          avatar: user.avatar ?? undefined
+          avatar: user.avatar ?? undefined,
+          suggestions_enabled: user.suggestions_enabled
         }
       }
     })
@@ -67,11 +68,13 @@ export const authOptions: AuthOptions = {
             email: user.email!,
             name: user.name!,
             avatar: user.image || defaultAvatar,
-            password: '' // Empty password for OAuth users
+            password: '', // Empty password for OAuth users
+            suggestions_enabled: false
           }
         })
         user.id = existingUser.id
         user.avatar = existingUser.avatar ?? undefined
+        user.suggestions_enabled = existingUser.suggestions_enabled
       }
       return true
     },
@@ -84,6 +87,7 @@ export const authOptions: AuthOptions = {
         token.name = user.name
         token.email = user.email
         token.avatar = user.avatar
+        token.suggestions_enabled = user.suggestions_enabled
       }
       return token
     },
@@ -93,6 +97,7 @@ export const authOptions: AuthOptions = {
         session.user.name = token.name as string
         session.user.email = token.email as string
         session.user.avatar = token.avatar as string
+        session.user.suggestions_enabled = token.suggestions_enabled as boolean
       }
       return session
     },

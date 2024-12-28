@@ -17,6 +17,8 @@ interface UserProfileProps {
   onLoadSchedule: (schedule: User['savedSchedules'][0]) => void
   onLogout: () => void
   onDeleteSchedule: (scheduleId: string) => void
+  suggestions_enabled: boolean
+  onToggleSuggestions: (enabled: boolean) => void
 }
 
 export default function UserProfile({ 
@@ -27,7 +29,9 @@ export default function UserProfile({
   onSaveSchedule, 
   onLoadSchedule,
   onLogout,
-  onDeleteSchedule
+  onDeleteSchedule,
+  suggestions_enabled,
+  onToggleSuggestions
 }: UserProfileProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [newScheduleName, setNewScheduleName] = useState('')
@@ -178,6 +182,8 @@ export default function UserProfile({
           onUpdateUser={onUpdateUser}
           onClose={() => setShowSettings(false)}
           onLogout={onLogout}
+          suggestions_enabled={suggestions_enabled}
+          onToggleSuggestions={onToggleSuggestions}
         />
       )}
     </div>

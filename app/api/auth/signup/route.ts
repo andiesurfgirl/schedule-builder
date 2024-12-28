@@ -29,7 +29,8 @@ export async function POST(request: Request) {
         email,
         name,
         password: hashedPassword,
-        avatar: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop&q=60"
+        avatar: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop&q=60",
+        suggestions_enabled: false
       }
     })
 
@@ -38,7 +39,8 @@ export async function POST(request: Request) {
       id: user.id,
       email: user.email,
       name: user.name,
-      avatar: user.avatar
+      avatar: user.avatar,
+      suggestions_enabled: user.suggestions_enabled
     })
   } catch (error) {
     console.error('Signup error:', error)

@@ -8,10 +8,13 @@ declare module 'next-auth' {
     email: string
     name: string
     avatar?: string
+    suggestions_enabled?: boolean
   }
 
   interface Session {
-    user: User & DefaultSession['user']
+    user: User & {
+      suggestions_enabled?: boolean
+    }
   }
 }
 
@@ -21,5 +24,6 @@ declare module 'next-auth/jwt' {
     name: string
     email: string
     avatar?: string
+    suggestions_enabled?: boolean
   }
 } 

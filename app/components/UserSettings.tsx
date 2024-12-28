@@ -1,18 +1,14 @@
 import { useState } from 'react'
-import { User } from '../types'
+import { UserUpdate, UserSettingsProps } from '../types/user'
 
-interface UserSettingsProps {
-  user: {
-    name: string
-    email: string
-    avatar?: string
-  }
-  onUpdateUser: (updates: Partial<User>) => void
-  onClose: () => void
-  onLogout: () => void
-}
-
-export default function UserSettings({ user, onUpdateUser, onClose, onLogout }: UserSettingsProps) {
+export default function UserSettings({ 
+  user, 
+  onUpdateUser, 
+  onClose, 
+  onLogout,
+  suggestions_enabled,
+  onToggleSuggestions 
+}: UserSettingsProps) {
   const [name, setName] = useState(user?.name || '')
   const [email, setEmail] = useState(user?.email || '')
   const [avatarUrl, setAvatarUrl] = useState(user?.avatar || '')
@@ -23,10 +19,13 @@ export default function UserSettings({ user, onUpdateUser, onClose, onLogout }: 
     setError('')
     
     try {
+      const cleanAvatarUrl = avatarUrl.split('?')[0]
+      
       await onUpdateUser({ 
         name,
         email,
-        avatar: avatarUrl || undefined
+        avatar: cleanAvatarUrl,
+        suggestions_enabled
       })
       onClose()
     } catch (error) {
@@ -79,6 +78,22 @@ export default function UserSettings({ user, onUpdateUser, onClose, onLogout }: 
                 className="mt-2 w-20 h-20 rounded-full object-cover"
               />
             )}
+          </div>
+          <div className="flex items-center justify-between py-2 border-t">
+            <span className="text-sm text-gray-700">Auto-suggest schedule fixes</span>
+            <button
+              type="button"
+              onClick={() => onToggleSuggestions(!suggestions_enabled)}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                suggestions_enabled ? 'bg-[#f7e9e9]' : 'bg-gray-200'
+              }`}
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                  suggestions_enabled ? 'translate-x-6' : 'translate-x-1'
+                }`}
+              />
+            </button>
           </div>
           <div className="flex gap-4">
             <button
