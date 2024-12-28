@@ -9,10 +9,10 @@ datasource db {
 
 model User {
   id            String     @id @default(cuid())
-  email         String?    @unique  // Made optional for OAuth
-  name          String?    // Made optional for OAuth
-  password      String?    // Made optional since GitHub users won't have a password
-  avatar        String?
+  email         String     @unique  // Remove optional
+  name          String     // Remove optional
+  password      String?    // Keep optional for OAuth
+  avatar        String?    // Keep optional
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
   savedSchedules Schedule[]

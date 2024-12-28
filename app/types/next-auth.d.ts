@@ -5,8 +5,8 @@ import { DefaultJWT } from 'next-auth/jwt'
 declare module 'next-auth' {
   interface User {
     id: string
-    name: string
     email: string
+    name: string
     avatar?: string
   }
 

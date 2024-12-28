@@ -30,11 +30,7 @@ export const authOptions: AuthOptions = {
           where: { email: credentials.email }
         })
 
-        if (!user || !user.password) {
-          console.log('Auth failed:', { 
-            userExists: !!user, 
-            hasPassword: !!(user?.password)
-          })
+        if (!user?.password) {
           return null
         }
 
@@ -47,7 +43,7 @@ export const authOptions: AuthOptions = {
         return {
           id: user.id,
           email: user.email,
-          name: user.name || 'Anonymous',
+          name: user.name,
           avatar: user.avatar
         }
       }
