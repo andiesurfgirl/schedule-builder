@@ -34,16 +34,6 @@ export default function AuthModal({ onLogin, onSignup, onClose }: AuthModalProps
     }
   }
 
-  const handleGoogleLogin = async () => {
-    try {
-      await signIn('google', {
-        callbackUrl: window.location.origin,
-      })
-    } catch (error) {
-      console.error('Google login error:', error)
-    }
-  }
-
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg p-6 max-w-md w-full">
@@ -57,29 +47,40 @@ export default function AuthModal({ onLogin, onSignup, onClose }: AuthModalProps
           >
             Continue with GitHub
           </button>
-          <button
-            type="button"
-            onClick={handleGoogleLogin}
-            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700"
-          >
-            Continue with Google
-          </button>
         </div>
 
-        <div className="mt-4 text-center text-sm text-gray-600">
-          <span className="block">- or -</span>
-        </div>
-
-        <div className="relative mb-4">
+        <div className="mt-4 relative">
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-300"></div>
+            <div className="w-full border-t border-gray-300" />
           </div>
           <div className="relative flex justify-center text-sm">
             <span className="px-2 bg-white text-gray-500">Or continue with email</span>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="mt-4 space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Password</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+            />
+          </div>
+
           {!isLogin && (
             <div>
               <label className="block text-sm font-medium text-gray-700">Name</label>
@@ -87,52 +88,35 @@ export default function AuthModal({ onLogin, onSignup, onClose }: AuthModalProps
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
                 required
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
               />
             </div>
           )}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-              required
-            />
-          </div>
-          <div className="flex gap-4">
-            <button
-              type="submit"
-              className="flex-1 py-2 px-4 border border-dashed border-black rounded-md bg-[#f7e9e9]"
-            >
-              {isLogin ? 'Login' : 'Sign Up'}
-            </button>
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 py-2 px-4 border border-dashed border-black rounded-md bg-gray-100"
-            >
-              Cancel
-            </button>
-          </div>
+
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#f7e9e9] hover:bg-[#f0dcdc] text-black"
+          >
+            {isLogin ? 'Login' : 'Sign Up'}
+          </button>
         </form>
+
+        <div className="mt-4 text-center">
+          <button
+            onClick={() => setIsLogin(!isLogin)}
+            className="text-sm text-gray-600 hover:text-gray-900"
+          >
+            {isLogin ? "Don't have an account? Sign up" : "Already have an account? Login"}
+          </button>
+        </div>
+
         <button
-          onClick={() => setIsLogin(!isLogin)}
-          className="mt-4 text-sm text-gray-600 hover:underline w-full text-center"
+          onClick={onClose}
+          className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
         >
-          {isLogin ? 'Need an account? Sign up' : 'Already have an account? Login'}
+          ✕
         </button>
       </div>
     </div>
