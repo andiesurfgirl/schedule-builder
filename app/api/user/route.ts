@@ -10,10 +10,12 @@ export async function PUT(req: NextRequest) {
     })
     
     if (!token?.email) {
+      console.log('Auth failed:', { token })
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const updates = await req.json()
+    console.log('Updating user:', { email: token.email, updates })
     
     const user = await prisma.user.update({
       where: { email: token.email },
@@ -24,9 +26,13 @@ export async function PUT(req: NextRequest) {
       }
     })
 
+    console.log('User updated:', user)
     return NextResponse.json(user)
   } catch (error) {
     console.error('Profile update error:', error)
-    return NextResponse.json({ error: 'Failed to update profile' }, { status: 500 })
+    return NextResponse.json({ 
+      error: 'Failed to update profile',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 })
   }
 } 

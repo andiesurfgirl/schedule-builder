@@ -17,7 +17,7 @@ import { useRouter } from 'next/navigation'
 const defaultProfilePic = "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop&q=60"
 
 export default function Page() {
-  const { data: session } = useSession()
+  const { data: session, update: updateSession } = useSession()
   const router = useRouter()
   
   // Add enabled state to handle hydration
@@ -269,21 +269,36 @@ export default function Page() {
 
   const handleUpdateUser = async (updates: Partial<User>) => {
     try {
+      console.log('Sending update request:', updates)
       const res = await fetch('/api/user', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(updates)
       })
 
+      const data = await res.json()
+      console.log('Server response:', data)
+
       if (!res.ok) {
-        throw new Error('Failed to update profile')
+        throw new Error(data.error || 'Failed to update profile')
       }
 
-      const updatedUser = await res.json()
-      setUser(updatedUser)
-      window.location.reload() // Refresh to update the session
+      // Update the session using NextAuth's update method
+      await updateSession({
+        ...session,
+        user: {
+          ...session?.user,
+          ...data
+        }
+      })
+
+      // Add delay before refresh
+      setTimeout(() => window.location.reload(), 5000)
+      return data
     } catch (error) {
       console.error('Error updating user:', error)
+      throw error
     }
   }
 
