@@ -116,7 +116,7 @@ export default function UserSettings({
               onLogout()
               onClose()
             }}
-            className="w-full py-2 px-4 text-sm border border-dashed border-black rounded-md bg-gray-100 hover:bg-gray-200"
+            className="w-full py-2 px-4 text-sm border border-dashed border-black rounded-md bg-red-200 hover:bg-red-300"
           >
             Logout
           </button>
