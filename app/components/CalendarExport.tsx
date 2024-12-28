@@ -16,11 +16,20 @@ export default function CalendarExport({ schedule }: CalendarExportProps) {
         const endDate = new Date(date)
         endDate.setMinutes(date.getMinutes() + activity.duration)
 
+        // Generate unique identifier for event
+        const uid = `${date.getTime()}-${activity.id}`
+
         return `BEGIN:VEVENT
+UID:${uid}
+DTSTAMP:${formatDate(new Date())}
 DTSTART:${formatDate(date)}
 DTEND:${formatDate(endDate)}
 SUMMARY:${activity.name}
 DESCRIPTION:Duration: ${activity.duration} minutes
+COLOR:${activity.color}
+STATUS:CONFIRMED
+SEQUENCE:0
+TRANSP:OPAQUE
 END:VEVENT`
       })
     )
@@ -28,6 +37,8 @@ END:VEVENT`
     return `BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//Schedule Builder//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
 ${events.join('\n')}
 END:VCALENDAR`
   }
@@ -44,7 +55,9 @@ END:VCALENDAR`
   }
 
   const formatDate = (date: Date) => {
-    return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z'
+    return date.toISOString()
+      .replace(/[-:]/g, '')  // Remove dashes and colons
+      .replace(/\.\d{3}/, '') // Remove milliseconds
   }
 
   const downloadSchedule = () => {
