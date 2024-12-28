@@ -10,6 +10,8 @@
     "autoprefixer": "^10.4.20",
     "bcrypt": "^5.1.1",
     "bcryptjs": "^2.4.3",
+    "cloudinary": "^2.5.1",
+    "dotenv": "^16.4.7",
     "nanoid": "^5.0.9",
     "next": "latest",
     "next-auth": "^4.24.11",
