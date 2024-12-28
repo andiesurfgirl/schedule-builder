@@ -1,6 +1,8 @@
 'use client'
 import { useState } from 'react'
 import { Activity } from '../types'
+import toast from 'react-hot-toast'
+import { useSession } from 'next-auth/react'
 
 interface AddActivityFormProps {
   onAddActivity: (activity: Omit<Activity, 'id'>) => void
@@ -30,6 +32,7 @@ const pastelColors = [
 ]
 
 export default function AddActivityForm({ onAddActivity, initialActivity, onCancel }: AddActivityFormProps) {
+  const { data: session } = useSession()
   const [name, setName] = useState(initialActivity?.name || '')
   const [duration, setDuration] = useState(initialActivity?.duration.toString() || '')
   const [days, setDays] = useState<string[]>(initialActivity?.days || [])
@@ -41,30 +44,40 @@ export default function AddActivityForm({ onAddActivity, initialActivity, onCanc
   const [uploadError, setUploadError] = useState('')
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!session?.user) {
+      toast.error("Please log in to upload images")
+      return
+    }
+
     const file = e.target.files?.[0]
     if (!file) return
 
     setUploadingImage(true)
     setUploadError('')
 
-    try {
-      const formData = new FormData()
-      formData.append('image', file)
+    const formData = new FormData()
+    formData.append('image', file)
 
+    try {
       const response = await fetch('/api/upload', {
         method: 'POST',
-        body: formData
+        body: formData,
+        credentials: 'include'
       })
 
       if (!response.ok) {
+        if (response.status === 401) {
+          toast.error("Session expired. Please log in again")
+          return
+        }
         throw new Error('Upload failed')
       }
 
-      const { url } = await response.json()
-      setImageUrl(url)
+      const data = await response.json()
+      setImageUrl(data.url)
     } catch (error) {
       console.error('Upload error:', error)
-      setUploadError('Failed to upload image. Please try again.')
+      toast.error("Failed to upload image. Please try again.")
     } finally {
       setUploadingImage(false)
     }

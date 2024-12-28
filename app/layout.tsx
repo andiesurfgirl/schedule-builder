@@ -4,6 +4,7 @@ import { getServerSession } from 'next-auth/next'
 import { authOptions } from '../lib/auth'
 import AuthProvider from './providers/AuthProvider'
 import { Inconsolata } from 'next/font/google'
+import { Toaster } from 'react-hot-toast'
 
 const inter = Inter({ subsets: ['latin'] })
 const inconsolata = Inconsolata({ 
@@ -24,6 +25,7 @@ export default async function RootLayout({
       <body className={inter.className}>
         <AuthProvider session={session}>
           {children}
+          <Toaster position="bottom-right" />
         </AuthProvider>
       </body>
     </html>
