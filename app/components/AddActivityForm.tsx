@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { Activity } from '../types'
 import toast from 'react-hot-toast'
 import { useSession } from 'next-auth/react'
+import HowToUseModal from './HowToUseModal'
 
 interface AddActivityFormProps {
   onAddActivity: (activity: Omit<Activity, 'id'>) => void
@@ -42,6 +43,7 @@ export default function AddActivityForm({ onAddActivity, initialActivity, onCanc
   const [showDaysError, setShowDaysError] = useState(false)
   const [uploadingImage, setUploadingImage] = useState(false)
   const [uploadError, setUploadError] = useState('')
+  const [showHowTo, setShowHowTo] = useState(false)
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!session?.user) {
@@ -124,145 +126,160 @@ export default function AddActivityForm({ onAddActivity, initialActivity, onCanc
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-sm p-6 space-y-4">
-      <h2 className="text-xl text-gray-900">Add New Activity</h2>
-      
-      <div>
-        <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-          Name *
-        </label>
-        <input
-          id="name"
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-        />
-      </div>
-
-      <div>
-        <label htmlFor="duration" className="block text-sm font-medium text-gray-700">
-          Duration (minutes) *
-        </label>
-        <input
-          id="duration"
-          type="number"
-          value={duration}
-          onChange={(e) => setDuration(e.target.value)}
-          required
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700">Days *</label>
-        <div className="mt-1 grid grid-cols-7 gap-2">
-          {daysOfWeek.map(day => (
-            <button
-              key={day}
-              type="button"
-              onClick={() => toggleDay(day)}
-              className={`px-2 py-1 text-xs rounded ${
-                days.includes(day)
-                  ? 'bg-[#f7e9e9] border border-dashed border-black'
-                  : 'bg-gray-100'
-              }`}
-            >
-              {day.slice(0, 3)}
-            </button>
-          ))}
-        </div>
-        {showDaysError && (
-          <p className="mt-1 text-sm text-red-600">
-            Please select at least one day
-          </p>
-        )}
-      </div>
-
-      <div>
-        <label htmlFor="time" className="block text-sm font-medium text-gray-700">
-          Time *
-        </label>
-        <input
-          id="time"
-          type="time"
-          value={time}
-          onChange={(e) => setTime(e.target.value)}
-          required
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700">
-          Color (optional)
-        </label>
-        <div className="grid grid-cols-5 gap-2 mt-1">
-          {pastelColors.map((colorOption) => (
-            <button
-              key={colorOption}
-              type="button"
-              className={`w-8 h-8 rounded-full border ${
-                color === colorOption ? 'border-black' : 'border-black border-dashed'
-              } hover:scale-110 transition-transform`}
-              style={{ backgroundColor: colorOption }}
-              onClick={() => setColor(colorOption)}
-            />
-          ))}
-        </div>
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700">
-          Cover Image (optional)
-        </label>
-        <input
-          type="file"
-          accept="image/*"
-          onChange={handleImageUpload}
-          disabled={uploadingImage}
-          className="mt-1 block w-full text-sm text-gray-500
-            file:mr-4 file:py-2 file:px-4
-            file:rounded-md file:border-0
-            file:text-sm file:font-semibold
-            file:bg-[#f7e9e9] file:text-gray-700
-            hover:file:bg-[#f0dcdc]"
-        />
-        {uploadingImage && (
-          <p className="mt-1 text-sm text-gray-500">Uploading...</p>
-        )}
-        {uploadError && (
-          <p className="mt-1 text-sm text-red-600">{uploadError}</p>
-        )}
-        {imageUrl && (
-          <div className="mt-2">
-            <img 
-              src={imageUrl} 
-              alt="Preview" 
-              className="w-20 h-20 object-cover rounded-md" 
+    <div className="space-y-4">
+      <div className="bg-white rounded-lg shadow-sm p-6">
+        <h2 className="text-lg font-medium text-gray-900 mb-4">Add New Activity</h2>
+        
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+              Name *
+            </label>
+            <input
+              id="name"
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
             />
           </div>
-        )}
+
+          <div>
+            <label htmlFor="duration" className="block text-sm font-medium text-gray-700">
+              Duration (minutes) *
+            </label>
+            <input
+              id="duration"
+              type="number"
+              value={duration}
+              onChange={(e) => setDuration(e.target.value)}
+              required
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Days *</label>
+            <div className="mt-1 grid grid-cols-7 gap-2">
+              {daysOfWeek.map(day => (
+                <button
+                  key={day}
+                  type="button"
+                  onClick={() => toggleDay(day)}
+                  className={`px-2 py-1 text-xs rounded ${
+                    days.includes(day)
+                      ? 'bg-[#f7e9e9] border border-dashed border-black'
+                      : 'bg-gray-100'
+                  }`}
+                >
+                  {day.slice(0, 3)}
+                </button>
+              ))}
+            </div>
+            {showDaysError && (
+              <p className="mt-1 text-sm text-red-600">
+                Please select at least one day
+              </p>
+            )}
+          </div>
+
+          <div>
+            <label htmlFor="time" className="block text-sm font-medium text-gray-700">
+              Time *
+            </label>
+            <input
+              id="time"
+              type="time"
+              value={time}
+              onChange={(e) => setTime(e.target.value)}
+              required
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Color (optional)
+            </label>
+            <div className="grid grid-cols-5 gap-2 mt-1">
+              {pastelColors.map((colorOption) => (
+                <button
+                  key={colorOption}
+                  type="button"
+                  className={`w-8 h-8 rounded-full border ${
+                    color === colorOption ? 'border-black' : 'border-black border-dashed'
+                  } hover:scale-110 transition-transform`}
+                  style={{ backgroundColor: colorOption }}
+                  onClick={() => setColor(colorOption)}
+                />
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Cover Image (optional)
+            </label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              disabled={uploadingImage}
+              className="mt-1 block w-full text-sm text-gray-500
+                file:mr-4 file:py-2 file:px-4
+                file:rounded-md file:border-0
+                file:text-sm file:font-semibold
+                file:bg-[#f7e9e9] file:text-gray-700
+                hover:file:bg-[#f0dcdc]"
+            />
+            {uploadingImage && (
+              <p className="mt-1 text-sm text-gray-500">Uploading...</p>
+            )}
+            {uploadError && (
+              <p className="mt-1 text-sm text-red-600">{uploadError}</p>
+            )}
+            {imageUrl && (
+              <div className="mt-2">
+                <img 
+                  src={imageUrl} 
+                  alt="Preview" 
+                  className="w-20 h-20 object-cover rounded-md" 
+                />
+              </div>
+            )}
+          </div>
+
+          <div className="flex gap-4">
+            <button
+              type="submit"
+              className="flex-1 py-2 px-4 border border-dashed border-black rounded-md shadow-sm text-sm font-medium text-gray-800 bg-[#f7e9e9] hover:bg-[#f0dcdc]"
+            >
+              {initialActivity ? 'Save Changes' : 'Add Activity'}
+            </button>
+            {onCancel && (
+              <button
+                type="button"
+                onClick={onCancel}
+                className="flex-1 py-2 px-4 border border-dashed border-black rounded-md shadow-sm text-sm font-medium text-gray-800 bg-gray-100 hover:bg-gray-200"
+              >
+                Cancel
+              </button>
+            )}
+          </div>
+        </form>
+      </div>
+      
+      <div className="text-center">
+        <button
+          onClick={() => setShowHowTo(true)}
+          className="text-sm text-gray-600 hover:text-gray-900 hover:underline"
+        >
+          How to use
+        </button>
       </div>
 
-      <div className="flex gap-4">
-        <button
-          type="submit"
-          className="flex-1 py-2 px-4 border border-dashed border-black rounded-md shadow-sm text-sm font-medium text-gray-800 bg-[#f7e9e9] hover:bg-[#f0dcdc]"
-        >
-          {initialActivity ? 'Save Changes' : 'Add Activity'}
-        </button>
-        {onCancel && (
-          <button
-            type="button"
-            onClick={onCancel}
-            className="flex-1 py-2 px-4 border border-dashed border-black rounded-md shadow-sm text-sm font-medium text-gray-800 bg-gray-100 hover:bg-gray-200"
-          >
-            Cancel
-          </button>
-        )}
-      </div>
-    </form>
+      {showHowTo && <HowToUseModal onClose={() => setShowHowTo(false)} />}
+    </div>
   )
 }

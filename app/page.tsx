@@ -503,7 +503,7 @@ export default function Page() {
 
       <footer className="text-center text-sm text-gray-600 py-4">
         <a 
-          href="https://andieinprogress.net" 
+          href="https://github.com/andiesurfgirl" 
           target="_blank" 
           rel="noopener noreferrer"
           className="text-gray-800 hover:underline"
