@@ -5,6 +5,8 @@ import CredentialsProvider from 'next-auth/providers/credentials'
 import prisma from './prisma'
 import bcrypt from 'bcrypt'
 
+const defaultAvatar = "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop&q=60"
+
 export const authOptions: AuthOptions = {
   providers: [
     GithubProvider({
@@ -64,16 +66,17 @@ export const authOptions: AuthOptions = {
           where: { email: user.email! },
           update: {
             name: user.name || undefined,
-            avatar: user.image || undefined
+            avatar: user.image || user.avatar || undefined
           },
           create: {
             email: user.email!,
             name: user.name!,
-            avatar: user.image || undefined,
+            avatar: user.image || defaultAvatar,
             password: '' // Empty password for OAuth users
           }
         })
         user.id = existingUser.id
+        user.avatar = existingUser.avatar
       }
       return true
     },

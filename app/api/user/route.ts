@@ -22,7 +22,13 @@ export async function PUT(req: NextRequest) {
       data: {
         name: updates.name,
         email: updates.email,
-        avatar: updates.avatar
+        avatar: updates.avatar || undefined
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        avatar: true
       }
     })
 
