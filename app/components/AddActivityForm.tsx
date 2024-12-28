@@ -186,7 +186,7 @@ export default function AddActivityForm({ onAddActivity, initialActivity, onCanc
 
           <div>
             <label htmlFor="time" className="block text-sm font-medium text-gray-700">
-              Time *
+              Start Time *
             </label>
             <input
               id="time"
