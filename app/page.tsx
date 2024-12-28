@@ -269,7 +269,6 @@ export default function Page() {
 
   const handleUpdateUser = async (updates: Partial<User>) => {
     try {
-      console.log('Sending update request:', updates)
       const res = await fetch('/api/user', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -278,7 +277,6 @@ export default function Page() {
       })
 
       const data = await res.json()
-      console.log('Server response:', data)
 
       if (!res.ok) {
         throw new Error(data.error || 'Failed to update profile')
@@ -293,8 +291,7 @@ export default function Page() {
         }
       })
 
-      // Add delay before refresh
-      setTimeout(() => window.location.reload(), 5000)
+      window.location.reload()
       return data
     } catch (error) {
       console.error('Error updating user:', error)

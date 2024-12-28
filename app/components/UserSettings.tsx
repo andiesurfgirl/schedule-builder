@@ -7,7 +7,7 @@ interface UserSettingsProps {
     email: string
     avatar?: string
   }
-  onUpdateUser: (updates: { name: string, email: string, avatar?: string }) => void
+  onUpdateUser: (updates: Partial<User>) => void
   onClose: () => void
   onLogout: () => void
 }
@@ -23,13 +23,12 @@ export default function UserSettings({ user, onUpdateUser, onClose, onLogout }: 
     setError('')
     
     try {
-      console.log('Submitting update:', { name, email, avatar: avatarUrl })
       await onUpdateUser({ 
-        name: name || undefined,
-        email: email || undefined,
+        name,
+        email,
         avatar: avatarUrl || undefined
       })
-      setTimeout(() => onClose(), 50000)
+      onClose()
     } catch (error) {
       console.error('Failed to update user:', error)
       setError(error instanceof Error ? error.message : 'Failed to update profile')
