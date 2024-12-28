@@ -76,7 +76,7 @@ export const authOptions: AuthOptions = {
           }
         })
         user.id = existingUser.id
-        user.avatar = existingUser.avatar
+        user.avatar = existingUser.avatar ?? undefined
       }
       return true
     },
