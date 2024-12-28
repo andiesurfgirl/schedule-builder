@@ -6,6 +6,12 @@ interface ActivityBankProps {
   activities: Activity[]
 }
 
+const formatDuration = (duration: number) => {
+  const hours = Math.floor(duration / 60)
+  const minutes = duration % 60
+  return `${hours > 0 ? `${hours}h ` : ''}${minutes > 0 ? `${minutes}m` : ''}`
+}
+
 export default function ActivityBank({ activities }: ActivityBankProps) {
   return (
     <div className="bg-white rounded-lg shadow-sm p-6">
@@ -32,7 +38,7 @@ export default function ActivityBank({ activities }: ActivityBankProps) {
                   >
                     <h3 className="font-medium text-gray-900">{activity.name}</h3>
                     <p className="text-sm text-gray-600 mt-1">
-                      {activity.duration} min - {activity.days.join(', ')} at {activity.time}
+                      {formatDuration(activity.duration)} - {activity.days.join(', ')} at {activity.time}
                     </p>
                   </li>
                 )}

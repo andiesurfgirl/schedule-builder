@@ -35,7 +35,19 @@ const pastelColors = [
 export default function AddActivityForm({ onAddActivity, initialActivity, onCancel }: AddActivityFormProps) {
   const { data: session } = useSession()
   const [name, setName] = useState(initialActivity?.name || '')
-  const [duration, setDuration] = useState(initialActivity?.duration.toString() || '')
+  const [hours, setHours] = useState(() => {
+    if (initialActivity?.duration) {
+      return Math.floor(initialActivity.duration / 60).toString()
+    }
+    return ''
+  })
+  
+  const [minutes, setMinutes] = useState(() => {
+    if (initialActivity?.duration) {
+      return (initialActivity.duration % 60).toString()
+    }
+    return ''
+  })
   const [days, setDays] = useState<string[]>(initialActivity?.days || [])
   const [time, setTime] = useState(initialActivity?.time || '')
   const [color, setColor] = useState(initialActivity?.color || pastelColors[Math.floor(Math.random() * pastelColors.length)])
@@ -87,8 +99,8 @@ export default function AddActivityForm({ onAddActivity, initialActivity, onCanc
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!name || !duration || !time) {
-      return // HTML5 validation will handle these
+    if (!name || !hours || !minutes || !time) {
+      return
     }
     
     if (days.length === 0) {
@@ -96,10 +108,12 @@ export default function AddActivityForm({ onAddActivity, initialActivity, onCanc
       return
     }
     
+    const totalMinutes = (parseInt(hours) * 60) + parseInt(minutes)
+    
     setShowDaysError(false)
     onAddActivity({
       name,
-      duration: parseInt(duration),
+      duration: totalMinutes,
       days,
       time,
       color,
@@ -107,7 +121,8 @@ export default function AddActivityForm({ onAddActivity, initialActivity, onCanc
     })
     
     setName('')
-    setDuration('')
+    setHours('')
+    setMinutes('')
     setDays([])
     setTime('')
     setColor(pastelColors[Math.floor(Math.random() * pastelColors.length)])
@@ -146,17 +161,48 @@ export default function AddActivityForm({ onAddActivity, initialActivity, onCanc
           </div>
 
           <div>
-            <label htmlFor="duration" className="block text-sm font-medium text-gray-700">
-              Duration (minutes) *
+            <label htmlFor="time" className="block text-sm font-medium text-gray-700">
+              Start Time *
             </label>
             <input
-              id="duration"
-              type="number"
-              value={duration}
-              onChange={(e) => setDuration(e.target.value)}
+              id="time"
+              type="time"
+              value={time}
+              onChange={(e) => setTime(e.target.value)}
               required
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Duration *
+            </label>
+            <div className="mt-1 grid grid-cols-2 gap-2">
+              <div>
+                <input
+                  type="number"
+                  min="0"
+                  value={hours}
+                  onChange={(e) => setHours(e.target.value)}
+                  placeholder="Hours"
+                  required
+                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                />
+              </div>
+              <div>
+                <input
+                  type="number"
+                  min="0"
+                  max="59"
+                  value={minutes}
+                  onChange={(e) => setMinutes(e.target.value)}
+                  placeholder="Minutes"
+                  required
+                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                />
+              </div>
+            </div>
           </div>
 
           <div>
@@ -182,20 +228,6 @@ export default function AddActivityForm({ onAddActivity, initialActivity, onCanc
                 Please select at least one day
               </p>
             )}
-          </div>
-
-          <div>
-            <label htmlFor="time" className="block text-sm font-medium text-gray-700">
-              Start Time *
-            </label>
-            <input
-              id="time"
-              type="time"
-              value={time}
-              onChange={(e) => setTime(e.target.value)}
-              required
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-            />
           </div>
 
           <div>
