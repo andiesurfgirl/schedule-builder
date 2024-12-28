@@ -267,9 +267,24 @@ export default function Page() {
     signOut()
   }
 
-  const handleUpdateUser = (updates: Partial<User>) => {
-    if (!user) return
-    setUser({ ...user, ...updates })
+  const handleUpdateUser = async (updates: Partial<User>) => {
+    try {
+      const res = await fetch('/api/user', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates)
+      })
+
+      if (!res.ok) {
+        throw new Error('Failed to update profile')
+      }
+
+      const updatedUser = await res.json()
+      setUser(updatedUser)
+      window.location.reload() // Refresh to update the session
+    } catch (error) {
+      console.error('Error updating user:', error)
+    }
   }
 
   const handleSaveSchedule = async (name: string) => {
