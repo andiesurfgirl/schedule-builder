@@ -128,7 +128,7 @@ export default function AddActivityForm({ onAddActivity, initialActivity, onCanc
   return (
     <div className="space-y-4">
       <div className="bg-white rounded-lg shadow-sm p-6">
-        <h2 className="text-lg font-medium text-gray-900 mb-4">Add New Activity</h2>
+        <h2 className="text-xl text-gray-900 mb-4">Add New Activity</h2>
         
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
